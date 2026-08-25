@@ -1,9 +1,9 @@
-from Class.SAOC import SAOC 
+from Crypt.SAOC import SAOC 
 
 SAOC.SAVE_LOC_FILE = "SAOFBS/"
 
 def main():
-    SAOC.decryptSave(SAOC, "SaveData.sav", "Decryted.sav")
+    SAOC.decryptSave(SAOC, "SaveData.sav", "Decrypted.sav")
 
 
 if __name__ == "__main__":
