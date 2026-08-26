@@ -22,8 +22,11 @@
     "2B": "Bullet Circle Accuracy",
     "2D": "Reload Speed",
     "2E": "Auto-Reload Rate",
+    "30": "Recharge Time (Gadget Cooldown)",
     "31": "Ammo Acquired",
     "32": "Ammo Capacity",
+    "34": "Item Drop Rate",
+    "37": "Medals Acquired",
     "36": "Weight (Weapon Mass Reduction Modifier)",
     "3B": "Effective Range",
     "3C": "Overheat Buildup & Duration",
@@ -31,7 +34,10 @@
     "3E": "Suppression Damage (Flinch / Concussion Overload)",
     "3F": "Melee Weapon Attack (Sword/Gun-and-Sword Scaling Modifier)",
     "40": "Close-Range Damage Multiplier",
-    "41": "Long-Range Sniper Threshold Multiplier"
+    "41": "Long-Range Sniper Threshold Multiplier",
+    "39": "Trade Value (Sell Price Boost)",
+    "3A": "Experience Points",
+    "38": "Medal Gauge Increase"
   },
   "Accessory": {
     "01": "STR",
@@ -66,6 +72,11 @@
     "37": "Medals Acquired",
     "38": "Medal Gauge Increase",
     "39": "Trade Value (Sell Price Boost)",
-    "3A": "Experience Points"
+    "3A": "Experience Points",
+    "36": "Weight (Weapon Mass Reduction Modifier)",
+    "1E": "Blaze Damage",
+    "1F": "Poison Damage",
+    "09": "Optical Attack",
+    "2D": "Reload Speed"
   }
 }
