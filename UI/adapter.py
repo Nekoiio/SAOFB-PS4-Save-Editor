@@ -1,4 +1,8 @@
-""""
+"""
+Adapter
+-------
+
+Thin layer between Qt and your SaveFile. This is where your
 binary-format-specific mutation code should live.
 """
 
@@ -6,8 +10,6 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
-
-from .catalog import K_CHIPS
 
 from Core.Classes.Objects import Equipment, Accessory, Weapon, Chip
 from Core.Classes.Save import SaveFile
@@ -59,6 +61,20 @@ class EditorAdapter:
             for i, obj in enumerate(self.accessories)
         ]
 
+    def _locate_equipment(self, equipment: Any) -> tuple[str | None, int | None]:
+        """Find which list (weapons/accessories) an Equipment instance came
+        from and its index within that list, so SaveFile methods that work
+        by (type, index) can be called from a widget that only holds a
+        reference to the object itself.
+        """
+        for i, obj in enumerate(self.weapons):
+            if obj is equipment:
+                return "Weapon", i
+        for i, obj in enumerate(self.accessories):
+            if obj is equipment:
+                return "Accessory", i
+        return None, None
+
     def set_equipment_name(self, equipment: Any, internal_id: str) -> None:
         """
         Hook for your actual binary mutation.
@@ -75,39 +91,53 @@ class EditorAdapter:
         """
         Hook for replacing a chip.
 
-        Your current Chip class derives chipName from chipID, so this updates
-        chipID/chipName. Replace/extend this method if you also need to write
-        the binary bytes in SaveFile.data.
+        Writes the new chip ID directly into the save's binary data via
+        SaveFile.modify_chip_by_index(), which also re-resolves chipName
+        against the K_CHIPS catalog for you.
         """
-        chips = getattr(equipment, "chips", [])
-        if not (0 <= index < len(chips)):
+        if self.save is None:
             return
 
-        chip = chips[index]
-        chip.chipID = chip_id
+        equipment_type, equipment_index = self._locate_equipment(equipment)
+        if equipment_type is None:
+            return
 
         try:
-            chip.chipName = K_CHIPS[equipment.type][chip_id]
-        except (KeyError, AttributeError):
-            try:
-                chip.chipName = K_CHIPS[chip_id]
-            except (KeyError, TypeError):
-                chip.chipName = chip_id
+            self.save.modify_chip_by_index(
+                equipment_type, equipment_index, index, chip_id=chip_id
+            )
+        except (IndexError, ValueError) as exc:
+            print(f"[X] Could not set chip: {exc}")
+            return
 
         self.mark_dirty()
 
     def set_chip_value(self, equipment: Any, index: int, value: str) -> None:
         """
         Hook for writing a chip's value (chipVal) separately from its ID.
+
+        Writes directly into the save's binary data via
+        SaveFile.modify_chip_by_index().
         """
-        chips = getattr(equipment, "chips", [])
-        if not (0 <= index < len(chips)):
+        if self.save is None:
             return
 
-        chip = chips[index]
+        equipment_type, equipment_index = self._locate_equipment(equipment)
+        if equipment_type is None:
+            return
+
         try:
-            chip.chipVal = float(value)
+            parsed_value = float(value)
         except (TypeError, ValueError):
-            chip.chipVal = value
+            print(f"[X] Chip value must be numeric, got: {value!r}")
+            return
+
+        try:
+            self.save.modify_chip_by_index(
+                equipment_type, equipment_index, index, value=parsed_value
+            )
+        except (IndexError, ValueError) as exc:
+            print(f"[X] Could not set chip value: {exc}")
+            return
 
         self.mark_dirty()

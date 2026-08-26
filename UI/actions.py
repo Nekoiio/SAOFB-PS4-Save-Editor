@@ -64,8 +64,6 @@ def apply_equipment_data(adapter: "EditorAdapter", equipment: Any, data: dict) -
                 ...
             ],
         }
-
-    Replace the body of this function with your real binary-write logic.
     """
     print(data)
 
