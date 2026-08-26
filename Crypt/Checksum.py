@@ -5,9 +5,6 @@ from tkinter import filedialog
 
 HMAC_KEY = b"1FB00CC8D8D94CD0A94C847C2F04A921"
 
-# Absolute offset of the checksum's length-prefix field (the "14 00 00 00" marker),
-# i.e. the byte position where the HMAC-covered data ends.
-# Confirmed via HMAC(key, data[:ABSOLUTE_OFFSET]) matching the stored digest.
 ABSOLUTE_OFFSET = 0x1B35A3
 #0x1B93DF
 
