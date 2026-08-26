@@ -39,7 +39,7 @@ def locate_checksum(data: bytearray, key=HMAC_KEY) -> int:
     raise ValueError("No checksum in this file verifies against the given key.")
 
 
-def update_checksum(data: bytearray, offset: int, key=HMAC_KEY) -> bytes:
+def update_checksum(data: bytearray, offset: int, key=HMAC_KEY) -> bytes:       #TODO: CHECK AND VERIFY THAT THIS FUNCTON ACTUALLY WRITES THE CHECKSUM CORRECTLY
     """Recompute the HMAC over data[:offset] and rewrite the 20 bytes after
     the length marker at `offset` in place. Returns the same bytearray.
     """
@@ -198,3 +198,4 @@ class SaveFile:
         with open(bakDir, "wb") as f:
             f.write(self.bData)
             print(f"[+] Writing backup to: {bakDir}")
+    

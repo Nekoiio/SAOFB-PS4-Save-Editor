@@ -1,4 +1,4 @@
 C++
 *.env.*
 __pycache__
-*.sav
+*.sav.*

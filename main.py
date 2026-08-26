@@ -11,7 +11,7 @@ from UI.main_window import MainWindow
 def main() -> None:
     app = QApplication(sys.argv)
     app.setApplicationName("Fatal Bullet Save Editor")
-    app.setOrganizationName("Obi ASM")
+    app.setOrganizationName("Nekoiio")
 
     window = MainWindow()
     window.show()
@@ -21,3 +21,12 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+"""
+Couple ISSUES:
+Core.Classes.Save.update_checksum <- #*Needs to be looked at it seems like the checksums first byte is being cutoff at write time
+
+
+
+"""
