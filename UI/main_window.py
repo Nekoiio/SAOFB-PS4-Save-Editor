@@ -195,7 +195,7 @@ class MainWindow(QMainWindow):
                     )
                 )
         else:
-            brand.setText("YOUR BRAND")
+            brand.setText("Nekoiios")
             brand.setObjectName("Accent")
 
         brand_layout.addWidget(brand)

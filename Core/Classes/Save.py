@@ -5,12 +5,20 @@ from Core.Classes.Objects import *
 HMAC_KEY = b"1FB00CC8D8D94CD0A94C847C2F04A921"
 LENGTH_MARKER = bytes.fromhex('14000000')  # int32 length=20, little-endian
 
-START_MARKER: bytes = b"Gamepad_RightY"
-START_MARKER_LENGTH: int = 0x0F
+ITEMBOX_START_MARKER: bytes = b"Gamepad_RightY"
+ITEMBOX_START_MARKER_LENGTH: int = 0x0F
+
+INVENTORIES_START_MARKER: int = "02 00 00 00 F4 01 00 00"
+
+def locate_inventories_start(data: bytearray) -> list[int]:
+    res: list[int] = []
+    count: int  = 0
+    for off in range(len(bytearray)):
+        res.append(data)
 
 def locate_itembox_start(data: bytearray) -> int:
-    start_offset: int =  data[:0x2000].find(START_MARKER)
-    start_offset += (START_MARKER_LENGTH + 4) * 2
+    start_offset: int =  data[:0x2000].find(ITEMBOX_START_MARKER)
+    start_offset += (ITEMBOX_START_MARKER_LENGTH + 4) * 2
     return start_offset
 
 def locate_checksum(data: bytearray, key=HMAC_KEY) -> int:
@@ -39,7 +47,7 @@ def locate_checksum(data: bytearray, key=HMAC_KEY) -> int:
     raise ValueError("No checksum in this file verifies against the given key.")
 
 
-def update_checksum(data: bytearray, offset: int, key=HMAC_KEY) -> bytes:       #TODO: CHECK AND VERIFY THAT THIS FUNCTON ACTUALLY WRITES THE CHECKSUM CORRECTLY
+def update_checksum(data: bytearray, offset: int, key=HMAC_KEY) -> bytes:       
     """Recompute the HMAC over data[:offset] and rewrite the 20 bytes after
     the length marker at `offset` in place. Returns the same bytearray.
     """
@@ -61,7 +69,7 @@ class SaveFile:
     path:            str
     key:             bytes
     checksum_offset: int
-    start_offset:    int
+    start_offsets:   int
 
     def __init__(self, path: str, key=HMAC_KEY):
         self.path = path
@@ -74,7 +82,10 @@ class SaveFile:
         self.checksum_offset = locate_checksum(self.data, key)
         print(f"[+] Loaded '{path}':\nchecksum offset = {self.checksum_offset:#x}\nFile Size: {self.size}")
 
+        print("Finding offset for Inventories and Item Box")
         self.start_offset = locate_itembox_start(self.data)
+        #self.start_offsets += locate_inventories_start(self.data)
+
         print(f"[+] Found start offset @: {self.start_offset:#x}")
 
         print(f"[+] Parsing file: {self.path}...")
@@ -108,7 +119,7 @@ class SaveFile:
             if not newObj.valid:
                 return current_offset + 1
             
-            print(f"[+] Last made equipment at {current_offset}")
+            #! DEBUG print(f"[+] Last made equipment at {current_offset}")
             self.accessories.append(newObj)
             return (current_offset - 4) + newObj.size
         
@@ -117,7 +128,7 @@ class SaveFile:
             if not newObj.valid:
                 return current_offset + 1
             
-            print(f"[+] Last made equipment at {current_offset}")
+            #! DEBUG print(f"[+] Last made equipment at {current_offset}")
             self.weapons.append(newObj)
             return (current_offset - 4) + newObj.size
         return current_offset + 1

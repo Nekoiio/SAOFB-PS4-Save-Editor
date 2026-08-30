@@ -16,6 +16,47 @@ ACCESSORY_CHIPC_OFF: int = 0x2B
 ACCESSORY_CUSC_OFF:  int = 0x00
 
 
+def read_customs(data: bytes, offset: int, cc: int, block_size) -> list[Customization]:
+    if cc < 1: return []
+
+    res: list[Customization] = []
+
+    first: Customization = Customization(offset, data)
+    res.append(first)
+    if cc < 2: return res
+
+    for i in range(cc):
+        res.append(Customization(offset+res[i].size, data))
+
+    return res
+
+
+class Customization:
+    customId:   bytes
+    entry1L:    int
+    entry1N:    str
+    entry2L:    int
+    entry2N:    str
+    size:       int
+
+    def __init__(self, offset: int, data: bytes):
+        self.customId = data[offset   : offset+5]
+        offset += 5
+
+        self.entry1L  = int.from_bytes(data[offset : offset+4])
+        offset += 4
+
+        self.entry1N  = data[offset : offset + self.entry1L-1].decode("ascii")
+        offset += self.entry1L
+
+        self.entry2L  = int.from_bytes(data[offset : offset+4])
+        offset += 4
+
+        self.entry2N  = data[offset : offset + self.entry1L-1].decode("ascii")
+
+        self.size = 5 + 4 + self.entry1L + 4 + self.entry2L
+
+
 
 class Chip:
     chipID:     str
@@ -198,6 +239,35 @@ class Weapon(Equipment):
 
 
 
+class Bullet:
+    def __init__(self, data: bytes, offset: int):
+        self.name_len = int.from_bytes(data[:4])
+        self.name     = data[4: 4+self.name_len-1]
+        self.size     = 71 + self.name_len + 4
+
+
+class Material:
+    def __init__(self, data: bytes, offset: int):
+        self.name_len = int.from_bytes(data[:4])
+        self.name     = data[4: 4+self.name_len-1]
+        self.size     = 71 + self.name_len + 4
+
+class Costume:
+    name:           str
+    name_len:       int
+    customizations: list[Customization]
+
+    def __init__(self, data: bytes, offset: int):
+        self.name_len       = data[offset:4]
+        self.name           = data[offset + 4 : offset + 4 + self.name_len - 1].decode("ascii")
+        self.size           = 71 + self.name_len + 4
+
+        cc: int             = data[offset + self.size-4 : offset + self.size]
+        self.customizations = read_customs(data, offset+self.size, cc)
+
+        for c in self.customizations:
+            self.size += c.size 
+    
 
 
 """
@@ -265,4 +335,10 @@ Accessory with Both available but none set:
 
 09 01 00 00 00
 11 00 00 00 46 61 62 72 69 63 5F 43 6F 6C 6F 72 5F 30 35 30 00 05 00 00 00 4E 6F 6E 65 00
+
+
+
+# Checksums 
+Used sentinel in this project | (00 00 00 00) 14 00 00 00 <- length marker for the chekcsum
+
 """

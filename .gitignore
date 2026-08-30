@@ -2,3 +2,6 @@ C++
 *.env.*
 __pycache__
 *.sav.*
+build
+dist
+Test
