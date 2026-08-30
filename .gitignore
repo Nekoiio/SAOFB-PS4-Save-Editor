@@ -2,6 +2,7 @@ C++
 *.env.*
 __pycache__
 *.sav.*
+*.sav
 build
 dist
-Test
+Saves
